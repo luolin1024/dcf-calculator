@@ -434,3 +434,162 @@ th, td {
 .formula-help strong {
     color: #1976d2;
 }
+/* 现金流查询指导样式 */
+.cashflow-guide {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.guide-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.step {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid #667eea;
+}
+
+.step h3 {
+    color: #4a5568;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.data-points {
+    display: grid;
+    gap: 10px;
+}
+
+.data-point {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+}
+
+.data-point .label {
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.data-point .value {
+    color: #667eea;
+    font-weight: 500;
+}
+
+.formula-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+}
+
+.formula-card .formula {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #2d3748;
+    text-align: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f7fafc;
+    border-radius: 6px;
+}
+
+.example {
+    background: #edf2f7;
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.example p {
+    margin: 5px 0;
+}
+
+.example .result {
+    font-weight: bold;
+    color: #2b6cb0;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #cbd5e0;
+}
+
+.data-sources {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.source {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.source h4 {
+    color: #4a5568;
+    margin-bottom: 10px;
+}
+
+.source ul {
+    list-style: none;
+    padding: 0;
+}
+
+.source li {
+    padding: 5px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.source li:last-child {
+    border-bottom: none;
+}
+
+.quick-tips {
+    background: #e6fffa;
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid #38b2ac;
+    margin-top: 20px;
+}
+
+.quick-tips h3 {
+    color: #234e52;
+    margin-bottom: 15px;
+}
+
+.quick-tips ul {
+    list-style: none;
+    padding: 0;
+}
+
+.quick-tips li {
+    padding: 8px 0;
+    border-bottom: 1px solid #b2f5ea;
+}
+
+.quick-tips li:last-child {
+    border-bottom: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .data-sources {
+        grid-template-columns: 1fr;
+    }
+
+    .data-point {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
