@@ -3,6 +3,7 @@ const { createApp, ref, onMounted, nextTick } = Vue;
 createApp({
     setup() {
         // 响应式数据
+        const showFormulaHelp = ref(false);
         const initialCashFlow = ref(1000);
         const growthRate = ref(10);
         const discountRate = ref(12);
@@ -41,12 +42,18 @@ createApp({
                 const presentValue = cashFlow / discountFactor;
                 cumulativePV += presentValue;
 
+                // 生成累计现值公式
+                const formula = i === 1
+                    ? `PV₁ = ${formatCurrency(presentValue)}`
+                    : `PV₁ + ... + PV${i} = ${formatCurrency(cumulativePV)}`;
+
                 yearlyData.push({
                     year: i,
                     cashFlow,
                     discountFactor,
                     presentValue,
-                    cumulativePV
+                    cumulativePV,
+                    formula: formula
                 });
 
                 cashFlows.push(cashFlow);
@@ -54,13 +61,28 @@ createApp({
 
             // 计算终值
             const lastCashFlow = cashFlows[cashFlows.length - 1];
+            // 终值公式: TV = [FCF_n × (1 + g)] / (r - g)
+            // 其中: FCF_n = 最后一年现金流, g = 永续增长率, r = 折现率
+
             const terminalValue = lastCashFlow * (1 + terminalGrowth.value / 100) /
                 (discountRate.value / 100 - terminalGrowth.value / 100);
 
+            // 终值现值公式: PV_TV = TV / (1 + r)^n
             const terminalValuePV = terminalValue / Math.pow(1 + discountRate.value / 100, years.value);
 
-            const operatingValue = cumulativePV;  // 经营价值 = 预测期现金流现值总和
+            const operatingValue = cumulativePV;
             const companyValue = operatingValue + terminalValuePV;
+
+            // 添加终值行
+            yearlyData.push({
+                year: '终值',
+                cashFlow: terminalValue,
+                discountFactor: Math.pow(1 + discountRate.value / 100, years.value),
+                presentValue: terminalValuePV,
+                cumulativePV: companyValue,
+                formula: `终值折现 = ${formatCurrency(terminalValuePV)}`,
+                isTerminal: true
+            });
 
             results.value = {
                 calculated: true,
@@ -72,7 +94,7 @@ createApp({
 
             // 使用nextTick确保DOM更新后再创建图表
             nextTick(() => {
-                updateChart(yearlyData);
+                updateChart(yearlyData.filter(item => !item.isTerminal)); // 图表不显示终值行
             });
         };
 
@@ -161,7 +183,7 @@ createApp({
         };
 
         // GitHub仓库链接
-        const githubRepo = 'https://github.com/your-username/dcf-calculator';
+        const githubRepo = 'https://github.com/luolin1024/dcf-calculator';
 
         // 组件挂载时自动计算一次
         onMounted(() => {
@@ -169,6 +191,7 @@ createApp({
         });
 
         return {
+            showFormulaHelp,
             initialCashFlow,
             growthRate,
             discountRate,
