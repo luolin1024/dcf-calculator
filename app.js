@@ -4,17 +4,19 @@ createApp({
     setup() {
         // 响应式数据
         const showFormulaHelp = ref(false);
-        const initialCashFlow = ref(1000);
+        const initialCashFlow = ref(1000.50);
         const growthRate = ref(10);
         const discountRate = ref(12);
         const years = ref(5);
         const terminalGrowth = ref(3);
+        const shareCapital = ref(10000.50); // 默认总股本10000.50万股
 
         const results = ref({
             calculated: false,
             companyValue: 0,
             operatingValue: 0,  // 这就是经营价值（预测期现金流现值）
             terminalValue: 0,
+            stockPrice: 0, // 新增每股合理价格
             yearlyData: []
         });
 
@@ -73,6 +75,9 @@ createApp({
             const operatingValue = cumulativePV;
             const companyValue = operatingValue + terminalValuePV;
 
+            // 计算每股合理价格
+            const stockPrice = companyValue / shareCapital.value;
+
             // 添加终值行
             yearlyData.push({
                 year: '终值',
@@ -89,6 +94,7 @@ createApp({
                 companyValue,
                 operatingValue,
                 terminalValue: terminalValuePV,
+                stockPrice, // 新增每股合理价格
                 yearlyData
             };
 
@@ -197,6 +203,7 @@ createApp({
             discountRate,
             years,
             terminalGrowth,
+            shareCapital, // 新增股本输入
             results,
             chartCanvas,
             calculateDCF,
