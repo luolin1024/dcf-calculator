@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8" />
+    <title>WACC 计算器</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- Vue3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <style>
+        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f8fafc; padding:20px; }
+        .container { max-width:840px; margin:0 auto; background:white; padding:20px; border-radius:10px; box-shadow:0 6px 18px rgba(2,6,23,0.06); }
+        h1 { font-size:20px; margin-bottom:10px; }
+        label { display:block; font-size:13px; color:#374151; margin-bottom:6px; }
+        input[type="number"] { width:100%; padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; }
+        .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+        .btn { padding:10px 14px; border-radius:8px; background:#1f6feb; color:white; border:none; cursor:pointer; }
+        .result { margin-top:14px; padding:12px; background:#f3f4f6; border-radius:8px; }
+        .muted { color:#6b7280; font-size:13px; }
+        .row { display:flex; gap:12px; align-items:center; }
+        .small { font-size:12px; color:#374151; }
+        a.home { display:inline-block; margin-bottom:12px; color:#2563eb; text-decoration:none; }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <a class="home" href="index.html">← 返回首页</a>
+    <h1>WACC 计算器（输入单位：万元）</h1>
+
+    <p class="muted">说明：所有金额请以 <strong>万元</strong> 为单位输入。利率请以小数形式输入（例如 2.6% 输入 0.026）。</p>
+
+    <div class="grid" style="margin-top:12px;">
+        <div>
+            <label>市值 E（万元）</label>
+            <input type="number" v-model.number="E" min="0" />
+        </div>
+
+        <div>
+            <label>有息负债 D（万元）</label>
+            <input type="number" v-model.number="D" min="0" />
+        </div>
+
+        <div>
+            <label>利息费用（万元）</label>
+            <input type="number" v-model.number="interest" min="0" />
+        </div>
+
+        <div>
+            <label>税率 T（例如 25% 输入 0.25）</label>
+            <input type="number" v-model.number="taxRate" step="0.01" min="0" max="1" />
+        </div>
+
+        <div>
+            <label>Beta（β）</label>
+            <input type="number" v-model.number="beta" step="0.01" />
+        </div>
+
+        <div>
+            <label>无风险利率 r_f（例如 2.6% 输入 0.026）</label>
+            <input type="number" v-model.number="rf" step="0.0001" />
+        </div>
+
+        <div>
+            <label>市场风险溢价 ERP（例如 6% 输入 0.06）</label>
+            <input type="number" v-model.number="ERP" step="0.0001" />
+        </div>
+    </div>
+
+    <div style="margin-top:14px;">
+        <button class="btn" @click="calculateWACC">计算 WACC</button>
+    </div>
+
+    <div v-if="error" class="result" style="background:#fee2e2;color:#991b1b;">
+        {{ error }}
+    </div>
+
+    <div v-if="calculated" class="result">
+        <div class="row">
+            <div style="flex:1">
+                <div class="small">债务成本 r_d（年化）</div>
+                <div><strong>{{ formatPercent(rd) }}</strong></div>
+                <div class="muted">计算方式：利息费用 ÷ 有息负债（单位一致，均为万元）</div>
+            </div>
+
+            <div style="flex:1">
+                <div class="small">税后债务成本 r_d(1-T)</div>
+                <div><strong>{{ formatPercent(rdAfterTax) }}</strong></div>
+            </div>
+
+            <div style="flex:1">
+                <div class="small">股权成本 r_e（CAPM）</div>
+                <div><strong>{{ formatPercent(re) }}</strong></div>
+                <div class="muted">r_e = r_f + β × ERP</div>
+            </div>
+        </div>
+
+        <hr style="margin:10px 0" />
+
+        <div style="display:flex;gap:12px;">
+            <div style="flex:1">
+                <div class="small">股权占比 E/(D+E)</div>
+                <div><strong>{{ equityWeightDisplay }}</strong></div>
+            </div>
+            <div style="flex:1">
+                <div class="small">债务占比 D/(D+E)</div>
+                <div><strong>{{ debtWeightDisplay }}</strong></div>
+            </div>
+            <div style="flex:1">
+                <div class="small">WACC（年化）</div>
+                <div style="font-size:18px;margin-top:6px;"><strong>{{ formatPercent(wacc) }}</strong></div>
+            </div>
+        </div>
+
+        <div style="margin-top:8px;" class="muted">
+            注：所有金额单位为 <strong>万元</strong>。若想用亿元或元，请先把输入换算好。
+        </div>
+    </div>
+</div>
+
+<script src="wacc.js"></script>
+</body>
+</html>
