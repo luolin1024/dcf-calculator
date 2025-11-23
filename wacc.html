@@ -1,448 +1,166 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WACC 计算器</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <!-- Vue3 CDN -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-
-    <style>
-        :root {
-            --primary-color: #3b82f6;
-            --primary-hover: #2563eb;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --dark-text: #1f2937;
-            --medium-text: #4b5563;
-            --light-text: #6b7280;
-            --border-color: #e5e7eb;
-            --background-light: #f9fafb;
-            --background-card: #ffffff;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --border-radius: 8px;
-            --transition: all 0.2s ease-in-out;
-        }
-
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
-            color: var(--dark-text);
-            line-height: 1.6;
-            padding: 20px;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: var(--background-card);
-            padding: 30px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-        }
-
-        a.home {
-            display: inline-flex;
-            align-items: center;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        a.home:hover {
-            color: var(--primary-hover);
-            transform: translateX(-2px);
-        }
-
-        a.home::before {
-            content: "←";
-            margin-right: 6px;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        h1 {
-            font-size: 28px;
-            margin: 0 0 10px;
-            color: var(--dark-text);
-            font-weight: 700;
-        }
-
-        .subtitle {
-            color: var(--medium-text);
-            font-size: 16px;
-            margin: 0;
-        }
-
-        .instructions {
-            background-color: #dbeafe;
-            border-left: 4px solid var(--primary-color);
-            padding: 15px;
-            border-radius: 0 var(--border-radius) var(--border-radius) 0;
-            margin: 20px 0;
-            font-size: 14px;
-        }
-
-        .instructions strong {
-            color: var(--dark-text);
-        }
-
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border-color);
-            color: var(--dark-text);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 0;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--medium-text);
-            margin-bottom: 8px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        input[type="number"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            font-size: 15px;
-            transition: var(--transition);
-            background-color: var(--background-light);
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-            background-color: var(--background-card);
-        }
-
-        input[type="number"]:hover {
-            border-color: #d1d5db;
-        }
-
-        .input-hint {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--light-text);
-            font-size: 13px;
-            pointer-events: none;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: var(--border-radius);
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: var(--transition);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            box-shadow: var(--shadow);
-        }
-
-        .btn:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        .btn i {
-            margin-right: 8px;
-        }
-
-        .result {
-            margin-top: 30px;
-            padding: 25px;
-            background: var(--background-light);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .error {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border-left: 4px solid var(--danger-color);
-            border-radius: 0 var(--border-radius) var(--border-radius) 0;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
-        }
-
-        .result-card {
-            background: var(--background-card);
-            border-radius: var(--border-radius);
-            padding: 20px;
-            box-shadow: var(--shadow);
-            border-top: 3px solid var(--primary-color);
-        }
-
-        .result-card.debt {
-            border-top-color: #8b5cf6;
-        }
-
-        .result-card.equity {
-            border-top-color: #10b981;
-        }
-
-        .result-card.wacc {
-            border-top-color: #f59e0b;
-            grid-column: span 2;
-            text-align: center;
-        }
-
-        @media (max-width: 768px) {
-            .result-card.wacc {
-                grid-column: span 1;
-            }
-        }
-
-        .result-label {
-            font-size: 14px;
-            color: var(--medium-text);
-            margin-bottom: 8px;
-        }
-
-        .result-value {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--dark-text);
-            margin-bottom: 10px;
-        }
-
-        .result-formula {
-            font-size: 13px;
-            color: var(--light-text);
-            font-style: italic;
-        }
-
-        .weights-container {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .weight-item {
-            flex: 1;
-            text-align: center;
-            padding: 15px;
-            background: var(--background-card);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-        }
-
-        .weight-value {
-            font-size: 20px;
-            font-weight: 700;
-            margin: 10px 0;
-        }
-
-        .weight-label {
-            font-size: 14px;
-            color: var(--medium-text);
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 25px 0;
-        }
-
-        footer {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-            font-size: 14px;
-            color: var(--light-text);
-            text-align: center;
-        }
-
-        footer strong {
-            color: var(--medium-text);
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
 <body>
-<div class="container" id="app">
-    <a class="home" href="index.html">返回首页</a>
-    
-    <header>
-        <h1>WACC 加权平均资本成本计算器</h1>
-        <p class="subtitle">Weighted Average Cost of Capital Calculator</p>
+<div id="app">
+    <header class="header">
+        <h1>📊 WACC 加权平均资本成本计算器</h1>
+        <a href="index.html">返回公司估值计算器</a>
+        <p>Weighted Average Cost of Capital Calculator</p>
     </header>
 
-    <div class="instructions">
-        <p><strong>使用说明：</strong>所有金额请以 <strong>万元</strong> 为单位输入。利率请以小数形式输入（例如 2.6% 输入 0.026）。</p>
-    </div>
+    <main class="container">
+        <!-- 输入参数区域 -->
+        <section class="input-section">
+            <h2>🔧 计算参数</h2>
 
-    <div class="form-section">
-        <h2 class="section-title">基础数据输入</h2>
-        <div class="grid">
-            <div class="form-group">
-                <label for="marketValue">市值 E（万元）</label>
-                <div class="input-wrapper">
-                    <input id="marketValue" type="number" v-model.number="E" min="0" placeholder="请输入公司市值">
-                    <span class="input-hint"></span>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="marketValue">市值 E（万元）</label>
+                    <input type="number" id="marketValue" v-model.number="E" min="0" placeholder="请输入公司市值">
+                </div>
+
+                <div class="input-group">
+                    <label for="debt">有息负债 D（万元）</label>
+                    <input type="number" id="debt" v-model.number="D" min="0" placeholder="请输入有息负债">
+                </div>
+
+                <div class="input-group">
+                    <label for="interest">利息费用（万元）</label>
+                    <input type="number" id="interest" v-model.number="interest" min="0" placeholder="请输入利息费用">
+                </div>
+
+                <div class="input-group">
+                    <label for="incomeBeforeTax">利润总额（万元）</label>
+                    <input type="number" id="incomeBeforeTax" v-model.number="incomeBeforeTax" placeholder="请输入利润总额">
+                </div>
+
+                <div class="input-group">
+                    <label for="incomeTax">所得税费用（万元）</label>
+                    <input type="number" id="incomeTax" v-model.number="incomeTax" placeholder="请输入所得税费用">
+                </div>
+
+                <div class="input-group">
+                    <label for="beta">Beta（β）</label>
+                    <input type="number" id="beta" v-model.number="beta" step="0.01" placeholder="请输入 Beta 系数">
+                </div>
+
+                <div class="input-group">
+                    <label for="riskFree">无风险利率 r_f（例如 2.6% 输入 0.026）</label>
+                    <input type="number" id="riskFree" v-model.number="rf" step="0.0001" placeholder="请输入无风险利率">
+                </div>
+
+                <div class="input-group">
+                    <label for="erp">市场风险溢价 ERP（例如 6% 输入 0.06）</label>
+                    <input type="number" id="erp" v-model.number="ERP" step="0.0001" placeholder="请输入市场风险溢价">
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="debt">有息负债 D（万元）</label>
-                <div class="input-wrapper">
-                    <input id="debt" type="number" v-model.number="D" min="0" placeholder="请输入有息负债">
-                    <span class="input-hint"></span>
+            <button @click="calculateWACC" class="calculate-btn">计算 WACC</button>
+        </section>
+
+        <!-- 结果显示区域 -->
+        <section class="results-section" v-if="calculated && !error">
+            <h2>📈 计算结果</h2>
+
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>债务成本 r_d（年化）</h3>
+                    <p class="value">{{ formatPercent(rd) }}</p>
+                    <p class="formula">计算方式：利息费用 ÷ 有息负债</p>
+                </div>
+                
+                <div class="card">
+                    <h3>税后债务成本 r_d(1-T)</h3>
+                    <p class="value">{{ formatPercent(rdAfterTax) }}</p>
+                </div>
+                
+                <div class="card">
+                    <h3>股权成本 r_e（CAPM）</h3>
+                    <p class="value">{{ formatPercent(re) }}</p>
+                    <p class="formula">r_e = r_f + β × ERP</p>
+                </div>
+                
+                <div class="card">
+                    <h3>加权平均资本成本 WACC</h3>
+                    <p class="value" style="font-size: 1.8rem;">{{ formatPercent(wacc) }}</p>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="interest">利息费用（万元）</label>
-                <div class="input-wrapper">
-                    <input id="interest" type="number" v-model.number="interest" min="0" placeholder="请输入利息费用">
-                    <span class="input-hint"></span>
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>股权占比 E/(D+E)</h3>
+                    <p class="value">{{ equityWeightDisplay }}</p>
+                </div>
+                
+                <div class="card">
+                    <h3>债务占比 D/(D+E)</h3>
+                    <p class="value">{{ debtWeightDisplay }}</p>
                 </div>
             </div>
+        </section>
 
-            <div class="form-group">
-                <label for="taxRate">税率 T（例如 25% 输入 0.25）</label>
-                <div class="input-wrapper">
-                    <input id="taxRate" type="number" v-model.number="taxRate" step="0.01" min="0" max="1" placeholder="请输入税率">
-                    <span class="input-hint"></span>
+        <!-- 错误信息显示 -->
+        <section class="results-section" v-if="error">
+            <div class="card" style="background: #fee2e2; color: #991b1b;">
+                <h3>⚠️ 输入错误</h3>
+                <p>{{ error }}</p>
+            </div>
+        </section>
+
+        <!-- 说明区域 -->
+        <section class="explanation-section">
+            <h2>💡 WACC模型说明</h2>
+            
+            <div class="explanation-content">
+                <h3>什么是WACC？</h3>
+                <p>加权平均资本成本（WACC）是企业各种资本成本的加权平均值，反映了企业筹集资金的平均成本。它是企业投资决策的重要参考指标。</p>
+
+                <h3>计算公式：</h3>
+                <div class="formula">
+                    <p><strong>WACC = E/(D+E) × r_e + D/(D+E) × r_d × (1-T)</strong></p>
+                    <p>其中：</p>
+                    <ul>
+                        <li><strong>E</strong>: 公司市值（股权价值）</li>
+                        <li><strong>D</strong>: 公司有息负债</li>
+                        <li><strong>r_e</strong>: 股权成本（使用CAPM模型计算）</li>
+                        <li><strong>r_d</strong>: 债务成本（利息费用/有息负债）</li>
+                        <li><strong>T</strong>: 企业所得税率（所得税费用/利润总额）</li>
+                    </ul>
                 </div>
+
+                <h3>参数说明：</h3>
+                <ul>
+                    <li><strong>市值 E</strong>: 公司股票的市场价值</li>
+                    <li><strong>有息负债 D</strong>: 公司需要支付利息的债务</li>
+                    <li><strong>利息费用</strong>: 利润表中的利息支出项目</li>
+                    <li><strong>利润总额</strong>: 税前利润，在利润表中可查</li>
+                    <li><strong>所得税费用</strong>: 实际缴纳的所得税，在利润表中可查</li>
+                    <li><strong>Beta（β）</strong>: 股票相对于市场的波动性</li>
+                    <li><strong>无风险利率</strong>: 通常采用国债收益率</li>
+                    <li><strong>市场风险溢价</strong>: 市场整体收益超过无风险收益的部分</li>
+                </ul>
+
+                <h3>注意事项：</h3>
+                <ul>
+                    <li>所有金额单位为<strong>万元</strong></li>
+                    <li>利润总额应大于所得税费用，确保税率在合理范围内</li>
+                    <li>如果利润总额为0或负数，则无法计算有效税率</li>
+                    <li>市值和有息负债不能同时为0</li>
+                </ul>
             </div>
+        </section>
+    </main>
 
-            <div class="form-group">
-                <label for="beta">Beta（β）</label>
-                <div class="input-wrapper">
-                    <input id="beta" type="number" v-model.number="beta" step="0.01" placeholder="请输入 Beta 系数">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="riskFree">无风险利率 r_f（例如 2.6% 输入 0.026）</label>
-                <div class="input-wrapper">
-                    <input id="riskFree" type="number" v-model.number="rf" step="0.0001" placeholder="请输入无风险利率">
-                    <span class="input-hint"></span>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="erp">市场风险溢价 ERP（例如 6% 输入 0.06）</label>
-                <div class="input-wrapper">
-                    <input id="erp" type="number" v-model.number="ERP" step="0.0001" placeholder="请输入市场风险溢价">
-                    <span class="input-hint"></span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <button class="btn" @click="calculateWACC">
-        <span>计算 WACC</span>
-    </button>
-
-    <div v-if="error" class="result error">
-        {{ error }}
-    </div>
-
-    <div v-if="calculated" class="result">
-        <div class="results-grid">
-            <div class="result-card debt">
-                <div class="result-label">债务成本 r_d（年化）</div>
-                <div class="result-value">{{ formatPercent(rd) }}</div>
-                <div class="result-formula">计算方式：利息费用 ÷ 有息负债</div>
-            </div>
-
-            <div class="result-card debt">
-                <div class="result-label">税后债务成本 r_d(1-T)</div>
-                <div class="result-value">{{ formatPercent(rdAfterTax) }}</div>
-            </div>
-
-            <div class="result-card equity">
-                <div class="result-label">股权成本 r_e（CAPM）</div>
-                <div class="result-value">{{ formatPercent(re) }}</div>
-                <div class="result-formula">r_e = r_f + β × ERP</div>
-            </div>
-
-            <div class="result-card wacc">
-                <div class="result-label">加权平均资本成本 WACC</div>
-                <div class="result-value" style="color: #f59e0b; font-size: 32px;">{{ formatPercent(wacc) }}</div>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="weights-container">
-            <div class="weight-item">
-                <div class="weight-label">股权占比 E/(D+E)</div>
-                <div class="weight-value" style="color: #10b981;">{{ equityWeightDisplay }}</div>
-            </div>
-            <div class="weight-item">
-                <div class="weight-label">债务占比 D/(D+E)</div>
-                <div class="weight-value" style="color: #8b5cf6;">{{ debtWeightDisplay }}</div>
-            </div>
-        </div>
-
-        <footer>
-            注：所有金额单位为 <strong>万元</strong>。若想用亿元或元，请先把输入换算好。
-        </footer>
-    </div>
+    <footer class="footer">
+        <p>© 2024 WACC 计算器 | 数据仅供参考，投资需谨慎</p>
+    </footer>
 </div>
 
 <script src="wacc.js"></script>

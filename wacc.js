@@ -3,10 +3,11 @@ const { createApp, ref, computed } = Vue;
 createApp({
     setup() {
         // 金额以万元为单位
-        const E = ref(0);         // 市值（万元）
-        const D = ref(0);         // 有息负债（万元）
-        const interest = ref(0);  // 利息费用（万元）
-        const taxRate = ref(0.25);
+        const E = ref(0);              // 市值（万元）
+        const D = ref(0);              // 有息负债（万元）
+        const interest = ref(0);       // 利息费用（万元）
+        const incomeBeforeTax = ref(0); // 利润总额（万元）
+        const incomeTax = ref(0);      // 所得税费用（万元）
         const beta = ref(1.1);
 
         // 市场参数（可输入）
@@ -30,8 +31,16 @@ createApp({
                 error.value = "市值、有息负债和利息费用不能为负数。";
                 return false;
             }
-            if (taxRate.value < 0 || taxRate.value > 1) {
-                error.value = "税率请输入 0 到 1 之间的小数（例如 25% 输入 0.25）。";
+            if (incomeBeforeTax.value <= 0) {
+                error.value = "利润总额必须大于0。";
+                return false;
+            }
+            if (incomeTax.value < 0) {
+                error.value = "所得税费用不能为负数。";
+                return false;
+            }
+            if (incomeTax.value >= incomeBeforeTax.value) {
+                error.value = "所得税费用必须小于利润总额。";
                 return false;
             }
             if (D.value === 0 && interest.value !== 0) {
@@ -49,13 +58,16 @@ createApp({
             calculated.value = false;
             if (!validateInputs()) return;
 
+            // 计算税率：所得税费用 / 利润总额
+            const taxRate = incomeTax.value / incomeBeforeTax.value;
+
             // 计算 r_d：利息费用 / 有息负债（单位一致，万元）
             if (D.value === 0) {
                 rd.value = 0;
             } else {
                 rd.value = interest.value / D.value;
             }
-            rdAfterTax.value = rd.value * (1 - taxRate.value);
+            rdAfterTax.value = rd.value * (1 - taxRate);
 
             // 股权成本 CAPM
             re.value = rf.value + beta.value * ERP.value;
@@ -86,7 +98,7 @@ createApp({
         });
 
         return {
-            E, D, interest, taxRate, beta, rf, ERP,
+            E, D, interest, incomeBeforeTax, incomeTax, beta, rf, ERP,
             rd, rdAfterTax, re, equityWeight, debtWeight, wacc,
             calculateWACC, formatPercent, calculated, error,
             equityWeightDisplay, debtWeightDisplay
