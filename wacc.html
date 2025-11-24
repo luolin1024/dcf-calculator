@@ -11,8 +11,7 @@
 <div id="app">
     <header class="header">
         <h1>📊 WACC 加权平均资本成本计算器</h1>
-        <a href="index.html">返回公司估值计算器</a>
-        <p>Weighted Average Cost of Capital Calculator</p>
+        <a href="index.html" class="nav-button">返回DCF计算器</a>
     </header>
 
     <main class="container">
@@ -52,12 +51,12 @@
                 </div>
 
                 <div class="input-group">
-                    <label for="riskFree">无风险利率 r_f（例如 2.6% 输入 0.026）</label>
+                    <label for="riskFree" title="无风险利率 r_f（例如 2.6% 输入 0.026）">无风险利率 r_f</label>
                     <input type="number" id="riskFree" v-model.number="rf" step="0.0001" placeholder="请输入无风险利率">
                 </div>
 
                 <div class="input-group">
-                    <label for="erp">市场风险溢价 ERP（例如 6% 输入 0.06）</label>
+                    <label for="erp" title="市场风险溢价 ERP（例如 6% 输入 0.06）">市场风险溢价 ERP</label>
                     <input type="number" id="erp" v-model.number="ERP" step="0.0001" placeholder="请输入市场风险溢价">
                 </div>
             </div>
