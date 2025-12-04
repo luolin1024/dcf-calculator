@@ -10,6 +10,13 @@ createApp({
         const years = ref(5);
         const terminalGrowth = ref(3);
         const shareCapital = ref(10000.50); // 默认总股本10000.50万股
+        const growthMode = ref('single'); // 'single' 或 'multi'
+        
+        // 多阶段增长配置
+        const growthStages = ref([
+            { name: '高速增长期', years: 3, growthRate: 15 },
+            { name: '稳定增长期', years: 2, growthRate: 8 }
+        ]);
 
         const results = ref({
             calculated: false,
@@ -31,41 +38,101 @@ createApp({
             }).format(value);
         };
 
+        // 添加阶段
+        const addStage = () => {
+            growthStages.value.push({ 
+                name: `阶段${growthStages.value.length + 1}`, 
+                years: 2, 
+                growthRate: 5 
+            });
+        };
+
+        // 删除阶段
+        const removeStage = (index) => {
+            if (growthStages.value.length > 1) {
+                growthStages.value.splice(index, 1);
+            }
+        };
+
         // 计算DCF
         const calculateDCF = () => {
             const cashFlows = [];
             let cumulativePV = 0;
             const yearlyData = [];
 
-            // 计算预测期现金流现值
-            for (let i = 1; i <= years.value; i++) {
-                const cashFlow = initialCashFlow.value * Math.pow(1 + growthRate.value / 100, i);
-                const discountFactor = Math.pow(1 + discountRate.value / 100, i);
-                const presentValue = cashFlow / discountFactor;
-                cumulativePV += presentValue;
+            if (growthMode.value === 'single') {
+                // 单阶段增长计算
+                for (let i = 1; i <= years.value; i++) {
+                    const cashFlow = initialCashFlow.value * Math.pow(1 + growthRate.value / 100, i);
+                    const discountFactor = Math.pow(1 + discountRate.value / 100, i);
+                    const presentValue = cashFlow / discountFactor;
+                    cumulativePV += presentValue;
 
-                // 生成累计现值公式
-                const formula = i === 1
-                    ? `PV₁ = ${formatCurrency(presentValue)}`
-                    : `PV₁ + ... + PV${i} = ${formatCurrency(cumulativePV)}`;
+                    yearlyData.push({
+                        year: i,
+                        cashFlow,
+                        discountFactor,
+                        presentValue,
+                        cumulativePV,
+                        growthRate: growthRate.value,
+                        formula: i === 1 ? `PV₁ = ${formatCurrency(presentValue)}` : `PV₁ + ... + PV${i} = ${formatCurrency(cumulativePV)}`
+                    });
 
-                yearlyData.push({
-                    year: i,
-                    cashFlow,
-                    discountFactor,
-                    presentValue,
-                    cumulativePV,
-                    formula: formula
-                });
+                    cashFlows.push(cashFlow);
+                }
+            } else {
+                // 多阶段增长计算
+                let currentYear = 0;
+                let lastCashFlow = initialCashFlow.value;
+                let totalYears = 0;
 
-                cashFlows.push(cashFlow);
+                // 验证阶段配置
+                for (const stage of growthStages.value) {
+                    if (!stage.years || stage.years <= 0 || !stage.growthRate && stage.growthRate !== 0) {
+                        alert('请检查阶段配置，确保年限和增长率都已填写');
+                        return;
+                    }
+                    totalYears += stage.years;
+                }
+
+                // 逐阶段计算
+                for (let stageIndex = 0; stageIndex < growthStages.value.length; stageIndex++) {
+                    const stage = growthStages.value[stageIndex];
+                    
+                    for (let yearInStage = 1; yearInStage <= stage.years; yearInStage++) {
+                        currentYear++;
+                        
+                        // 计算当年现金流
+                        const cashFlow = stageIndex === 0 && yearInStage === 1 
+                            ? initialCashFlow.value * (1 + stage.growthRate / 100)
+                            : lastCashFlow * (1 + stage.growthRate / 100);
+                        
+                        const discountFactor = Math.pow(1 + discountRate.value / 100, currentYear);
+                        const presentValue = cashFlow / discountFactor;
+                        cumulativePV += presentValue;
+
+                        yearlyData.push({
+                            year: currentYear,
+                            stage: stage.name,
+                            cashFlow,
+                            discountFactor,
+                            presentValue,
+                            cumulativePV,
+                            growthRate: stage.growthRate,
+                            formula: `PV${currentYear} = ${formatCurrency(presentValue)}`
+                        });
+
+                        cashFlows.push(cashFlow);
+                        lastCashFlow = cashFlow;
+                    }
+                }
+                
+                // 更新总年限
+                years.value = totalYears;
             }
 
             // 计算终值
             const lastCashFlow = cashFlows[cashFlows.length - 1];
-            // 终值公式: TV = [FCF_n × (1 + g)] / (r - g)
-            // 其中: FCF_n = 最后一年现金流, g = 永续增长率, r = 折现率
-
             const terminalValue = lastCashFlow * (1 + terminalGrowth.value / 100) /
                 (discountRate.value / 100 - terminalGrowth.value / 100);
 
@@ -94,13 +161,13 @@ createApp({
                 companyValue,
                 operatingValue,
                 terminalValue: terminalValuePV,
-                stockPrice, // 新增每股合理价格
+                stockPrice,
                 yearlyData
             };
 
             // 使用nextTick确保DOM更新后再创建图表
             nextTick(() => {
-                updateChart(yearlyData.filter(item => !item.isTerminal)); // 图表不显示终值行
+                updateChart(yearlyData.filter(item => !item.isTerminal));
             });
         };
 
@@ -203,10 +270,14 @@ createApp({
             discountRate,
             years,
             terminalGrowth,
-            shareCapital, // 新增股本输入
+            shareCapital,
+            growthMode,
+            growthStages,
             results,
             chartCanvas,
             calculateDCF,
+            addStage,
+            removeStage,
             formatCurrency,
             githubRepo
         };
