@@ -10,7 +10,7 @@ createApp({
         const years = ref(5);
         const terminalGrowth = ref(3);
         const shareCapital = ref(10000.50); // 默认总股本10000.50万股
-        const growthMode = ref('single'); // 'single' 或 'multi'
+        const growthMode = ref('multi'); // 'single' 或 'multi'
         
         // 多阶段增长配置
         const growthStages = ref([
