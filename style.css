@@ -402,7 +402,54 @@ tr:hover {
     text-decoration: underline;
 }
 
+/* 并列计算器布局 */
+.calculators-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.calculator-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.calculator-card .input-section,
+.calculator-card .results-section {
+    background: white;
+    margin-bottom: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 25px;
+}
+
+.calculator-card .input-section {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* 并列说明布局 */
+.explanations-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.explanations-grid .explanation-section {
+    margin-bottom: 0;
+}
+
 /* 响应式设计 */
+@media (max-width: 1200px) {
+    .calculators-grid,
+    .explanations-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 10px;
@@ -429,6 +476,11 @@ tr:hover {
         position: static;
         display: inline-block;
         margin-bottom: 20px;
+    }
+    
+    .calculator-card .input-section,
+    .calculator-card .results-section {
+        padding: 20px;
     }
 }
 .chart-container {
