@@ -205,6 +205,32 @@ body {
     border-left: 4px solid #f39c12;
 }
 
+/* 统一参数输入区域 */
+.unified-input-section {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.parameter-block {
+    margin-bottom: 40px;
+}
+
+.parameter-block:last-child {
+    margin-bottom: 20px;
+}
+
+.parameter-block h2 {
+    color: #4a5568;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* 输入区域 */
 .input-section {
     background: white;
@@ -412,7 +438,7 @@ tr:hover {
 
 /* 按钮组样式 */
 .button-group {
-    margin-top: 20px;
+    margin-top: 30px;
     display: flex;
     justify-content: center;
     gap: 15px;
@@ -420,6 +446,22 @@ tr:hover {
 
 .button-group .calculate-btn {
     margin: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 15px 40px;
+    font-size: 20px;
+    min-width: 200px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.button-group .calculate-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
 }
 
 

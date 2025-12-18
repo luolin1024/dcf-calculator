@@ -15,82 +15,85 @@
     </header>
 
     <main class="container">
-        <!-- 公共参数区域 -->
-        <section class="input-section">
-            <h2>🔧 公共参数</h2>
-            
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="incomeBeforeTax">利润总额（万元）</label>
-                    <input type="number" id="incomeBeforeTax" v-model.number="incomeBeforeTax" placeholder="请输入利润总额">
-                </div>
+        <!-- 参数输入区域（统一白色背景） -->
+        <div class="unified-input-section">
+            <!-- 公共参数区域 -->
+            <div class="parameter-block">
+                <h2>🔧 公共参数</h2>
+                
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="incomeBeforeTax">利润总额（万元）</label>
+                        <input type="number" id="incomeBeforeTax" v-model.number="incomeBeforeTax" placeholder="请输入利润总额">
+                    </div>
 
-                <div class="input-group">
-                    <label for="incomeTax">所得税费用（万元）</label>
-                    <input type="number" id="incomeTax" v-model.number="incomeTax" placeholder="请输入所得税费用">
-                </div>
+                    <div class="input-group">
+                        <label for="incomeTax">所得税费用（万元）</label>
+                        <input type="number" id="incomeTax" v-model.number="incomeTax" placeholder="请输入所得税费用">
+                    </div>
 
-                <div class="input-group">
-                    <label for="interestBearingDebt" title="短期借款、一年内到期的非流动负债、长期借款、应付债券之和">有息负债（万元）</label>
-                    <input type="number" id="interestBearingDebt" v-model.number="D" min="0" placeholder="请输入有息负债总额">
-                </div>
+                    <div class="input-group">
+                        <label for="interestBearingDebt" title="短期借款、一年内到期的非流动负债、长期借款、应付债券之和">有息负债（万元）</label>
+                        <input type="number" id="interestBearingDebt" v-model.number="D" min="0" placeholder="请输入有息负债总额">
+                    </div>
 
-                <div class="input-group">
-                    <label for="interest" title="利息费用">利息费用 D（万元）</label>
-                    <input type="number" id="interest" v-model.number="interest" min="0" placeholder="请输入利息费用">
-                </div>
-            </div>
-        </section>
-
-        <!-- WACC计算参数 -->
-        <section class="input-section">
-            <h2>📊 WACC计算参数</h2>
-
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="marketValue">市值 E（万元）</label>
-                    <input type="number" id="marketValue" v-model.number="E" min="0" placeholder="请输入公司市值">
-                </div>
-
-                <div class="input-group">
-                    <label for="beta">Beta（β）</label>
-                    <input type="number" id="beta" v-model.number="beta" step="0.01" placeholder="请输入 Beta 系数">
-                </div>
-
-                <div class="input-group">
-                    <label for="riskFree" title="无风险利率 r_f（例如 2.6% 输入 0.026）">无风险利率 r_f</label>
-                    <input type="number" id="riskFree" v-model.number="rf" step="0.0001" placeholder="请输入无风险利率">
-                </div>
-
-                <div class="input-group">
-                    <label for="erp" title="市场风险溢价 ERP（例如 6% 输入 0.06）">市场风险溢价 ERP</label>
-                    <input type="number" id="erp" v-model.number="ERP" step="0.0001" placeholder="请输入市场风险溢价">
+                    <div class="input-group">
+                        <label for="interest" title="利息费用">利息费用 D（万元）</label>
+                        <input type="number" id="interest" v-model.number="interest" min="0" placeholder="请输入利息费用">
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- ROIC计算参数 -->
-        <section class="input-section">
-            <h2>💰 ROIC计算参数</h2>
+            <!-- WACC计算参数 -->
+            <div class="parameter-block">
+                <h2>📊 WACC计算参数</h2>
 
-            <div class="input-grid">
-                <div class="input-group">
-                    <label for="operatingProfit">营业利润（万元）</label>
-                    <input type="number" id="operatingProfit" v-model.number="operatingProfit" placeholder="请输入营业利润">
-                </div>
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="marketValue">市值 E（万元）</label>
+                        <input type="number" id="marketValue" v-model.number="E" min="0" placeholder="请输入公司市值">
+                    </div>
 
-                <div class="input-group">
-                    <label for="parentEquity" title="归属于母公司所有者权益合计">归母所有者权益（万元）</label>
-                    <input type="number" id="parentEquity" v-model.number="parentEquity" min="0" placeholder="请输入归母所有者权益">
+                    <div class="input-group">
+                        <label for="beta">Beta（β）</label>
+                        <input type="number" id="beta" v-model.number="beta" step="0.01" placeholder="请输入 Beta 系数">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="riskFree" title="无风险利率 r_f（例如 2.6% 输入 0.026）">无风险利率 r_f</label>
+                        <input type="number" id="riskFree" v-model.number="rf" step="0.0001" placeholder="请输入无风险利率">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="erp" title="市场风险溢价 ERP（例如 6% 输入 0.06）">市场风险溢价 ERP</label>
+                        <input type="number" id="erp" v-model.number="ERP" step="0.0001" placeholder="请输入市场风险溢价">
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <!-- 统一计算按钮 -->
-        <div class="button-group" style="text-align: center; margin: 20px 0;">
-            <button @click="calculateAll" class="calculate-btn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 15px 40px; font-size: 20px;">
-                🔄 计算全部
-            </button>
+            <!-- ROIC计算参数 -->
+            <div class="parameter-block">
+                <h2>💰 ROIC计算参数</h2>
+
+                <div class="input-grid">
+                    <div class="input-group">
+                        <label for="operatingProfit">营业利润（万元）</label>
+                        <input type="number" id="operatingProfit" v-model.number="operatingProfit" placeholder="请输入营业利润">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="parentEquity" title="归属于母公司所有者权益合计">归母所有者权益（万元）</label>
+                        <input type="number" id="parentEquity" v-model.number="parentEquity" min="0" placeholder="请输入归母所有者权益">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统一计算按钮 -->
+            <div class="button-group">
+                <button @click="calculateAll" class="calculate-btn">
+                    🔄 计算全部
+                </button>
+            </div>
         </div>
 
         <!-- 结果显示区域 -->
@@ -187,7 +190,7 @@
                     <p>{{ error }}</p>
                 </div>
                 
-                <div class="card" style="background: #fee2e2; color: #991b1b;" v-if="roicError" style="margin-top: 20px;">
+                <div class="card" style="background: #fee2e2; color: #991b1b; margin-top: 20px;" v-if="roicError">
                     <h3>⚠️ ROIC输入错误</h3>
                     <p>{{ roicError }}</p>
                 </div>
@@ -202,7 +205,7 @@
                     <h3>什么是WACC？</h3>
                     <p>加权平均资本成本（WACC）是企业各种资本成本的加权平均值，反映了企业筹集资金的平均成本。它是企业投资决策的重要参考指标。</p>
 
-                    <h3>计算公式：</h3>
+                    <h3>WACC计算公式：</h3>
                     <div class="formula">
                         <p><strong>WACC = E/(D+E) × r_e + D/(D+E) × r_d × (1-T)</strong></p>
                         <p>其中：</p>
@@ -215,13 +218,38 @@
                         </ul>
                     </div>
 
+                    <h3>什么是ROIC？</h3>
+                    <p>投入资本回报率（ROIC，Return on Invested Capital）是衡量企业运用投入资本创造利润能力的指标。它反映了企业每投入一元资本能够产生多少税后营业利润，是评估企业运营效率和投资回报的重要指标。</p>
+
+                    <h3>ROIC计算公式：</h3>
+                    <div class="formula">
+                        <p><strong>ROIC = NOPAT ÷ Invested Capital</strong></p>
+                        <p>其中：</p>
+                        <ul>
+                            <li><strong>税率</strong>: 企业所得税率 = 所得税费用 ÷ 利润总额</li>
+                            <li><strong>NOPAT</strong>: 税后营业利润 = (营业利润 + 利息支出) × (1 - 税率)</li>
+                            <li><strong>Invested Capital</strong>: 投入资本 = 归属母公司所有者权益 + 有息负债</li>
+                        </ul>
+                    </div>
+
+                    <h3>ROIC vs WACC 价值创造判断：</h3>
+                    <div class="formula">
+                        <ul>
+                            <li><strong>ROIC > WACC</strong>: 创造价值，投资回报高于资本成本</li>
+                            <li><strong>ROIC = WACC</strong>: 维持价值，投资回报等于资本成本</li>
+                            <li><strong>ROIC < WACC</strong>: 损害价值，投资回报低于资本成本</li>
+                        </ul>
+                    </div>
+
                     <h3>参数说明：</h3>
                     <ul>
                         <li><strong>市值 E</strong>: 公司股票的市场价值</li>
-                        <li><strong>有息负债 D</strong>: 公司需要支付利息的债务</li>
+                        <li><strong>有息负债 D</strong>: 公司需要支付利息的债务（短期借款、一年内到期的非流动负债、长期借款、应付债券之和）</li>
                         <li><strong>利息费用</strong>: 利润表中的利息支出项目</li>
                         <li><strong>利润总额</strong>: 税前利润，在利润表中可查</li>
                         <li><strong>所得税费用</strong>: 实际缴纳的所得税，在利润表中可查</li>
+                        <li><strong>营业利润</strong>: 企业主营业务产生的利润，在利润表中可查</li>
+                        <li><strong>归母所有者权益</strong>: 归属于母公司所有者权益合计，在资产负债表中可查</li>
                         <li><strong>Beta（β）</strong>: 股票相对于市场的波动性</li>
                         <li><strong>无风险利率</strong>: 通常采用国债收益率</li>
                         <li><strong>市场风险溢价</strong>: 市场整体收益超过无风险收益的部分</li>
@@ -233,11 +261,11 @@
                         <li>利润总额应大于所得税费用，确保税率在合理范围内</li>
                         <li>如果利润总额为0或负数，则无法计算有效税率</li>
                         <li>市值和有息负债不能同时为0</li>
+                        <li>投入资本必须大于0才能计算有效的ROIC</li>
+                        <li>ROIC是年度指标，反映的是企业一年期的投资回报能力</li>
                     </ul>
                 </div>
             </section>
-
-        </section>
     </main>
 
     <footer class="footer">
