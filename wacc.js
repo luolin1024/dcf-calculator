@@ -3,11 +3,11 @@ const { createApp, ref, computed } = Vue;
 createApp({
     setup() {
         // 金额以万元为单位
-        const E = ref(0);              // 市值（万元）
-        const D = ref(0);              // 有息负债（万元）
-        const interest = ref(0);       // 利息费用（万元）
-        const incomeBeforeTax = ref(0); // 利润总额（万元）
-        const incomeTax = ref(0);      // 所得税费用（万元）
+        const E = ref(179160000);              // 市值（万元）
+        const D = ref(11195);              // 有息负债（万元）
+        const interest = ref(1447);       // 利息费用（万元）
+        const incomeBeforeTax = ref(11963857); // 利润总额（万元）
+        const incomeTax = ref(3030385);      // 所得税费用（万元）
         const beta = ref(1.1);
 
         // 市场参数（可输入）
@@ -27,11 +27,7 @@ createApp({
 
         // ROIC相关变量
         const operatingProfit = ref(11968858);           // 营业利润
-        const interestExpense = ref(1447);           // 利息支出
-        const totalProfit = ref(11963857);               // 利润总额
-        const roicIncomeTax = ref(3030385);                 // 所得税费用
         const parentEquity = ref(23310598);              // 归属于母公司所有者权益合计
-        const interestBearingDebt = ref(0);       // 有息负债
 
         // ROIC结果
         const roic = ref(0);
@@ -119,12 +115,12 @@ createApp({
                 return false;
             }
             
-            if (parentEquity.value < 0 || interestBearingDebt.value < 0) {
+            if (parentEquity.value < 0 || D.value < 0) {
                 roicError.value = "归母所有者权益和有息负债不能为负数。";
                 return false;
             }
             
-            const investedCapital = parentEquity.value + interestBearingDebt.value;
+            const investedCapital = parentEquity.value + D.value;
             if (investedCapital <= 0) {
                 roicError.value = "投入资本（归母所有者权益 + 有息负债）必须大于0。";
                 return false;
@@ -139,12 +135,12 @@ createApp({
 
             // 计算NOPAT：营业利润 - 利息支出 × (1 - 税率)
             // 更准确的NOPAT计算：扣除利息支出的税后影响
-            const taxRate = totalProfit.value > 0 ? roicIncomeTax.value / totalProfit.value : 0;
-            calculatedNopat.value = (operatingProfit.value + interestExpense.value)* (1 - taxRate);
+            const taxRate = incomeBeforeTax.value > 0 ? incomeTax.value / incomeBeforeTax.value : 0;
+            calculatedNopat.value = (operatingProfit.value + interest.value)* (1 - taxRate);
             roicCalculationMethod.value = `(营业利润 + 利息支出) × (1 - 税率${(taxRate * 100).toFixed(2)}%)`;
 
             // 计算投入资本：归母所有者权益 + 有息负债
-            calculatedInvestedCapital.value = parentEquity.value + interestBearingDebt.value;
+            calculatedInvestedCapital.value = parentEquity.value + D.value;
             investedCapitalMethod.value = "归母所有者权益 + 有息负债";
 
             // 计算ROIC
@@ -190,16 +186,67 @@ createApp({
             return (debtWeight.value * 100).toFixed(4) + " %";
         });
 
+        // 计算全部
+        function calculateAll() {
+            calculateWACC();
+            calculateROIC();
+        }
+
+        // 获取比较样式
+        function getComparisonStyle() {
+            if (!roicComparison.value.wacc) return {};
+            
+            const roicPercent = roic.value * 100;
+            const waccPercent = wacc.value * 100;
+            
+            if (roicPercent > waccPercent) {
+                return { background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)' };
+            } else if (roicPercent < waccPercent) {
+                return { background: 'linear-gradient(135deg, #dc3545 0%, #fd7e14 100%)' };
+            } else {
+                return { background: 'linear-gradient(135deg, #ffc107 0%, #fd7e14 100%)' };
+            }
+        }
+
+        // 获取价值创造文本
+        function getValueCreationText() {
+            if (!roicComparison.value.wacc) return "-";
+            
+            const roicPercent = roic.value * 100;
+            const waccPercent = wacc.value * 100;
+            
+            if (roicPercent > waccPercent) {
+                return "✅ 创造价值";
+            } else if (roicPercent < waccPercent) {
+                return "❌ 损害价值";
+            } else {
+                return "➖ 维持价值";
+            }
+        }
+
+        // 获取价值创造详情
+        function getValueCreationDetail() {
+            if (!roicComparison.value.wacc) return "";
+            
+            const roicPercent = roic.value * 100;
+            const waccPercent = wacc.value * 100;
+            const spread = (roicPercent - waccPercent).toFixed(2);
+            
+            return `价值创造/损毁 = ${(spread > 0 ? '+' : '')}${spread}%`;
+        }
+
         return {
             E, D, interest, incomeBeforeTax, incomeTax, beta, rf, ERP,
             rd, rdAfterTax, re, equityWeight, debtWeight, wacc,
             calculateWACC, formatPercent, calculated, error,
             equityWeightDisplay, debtWeightDisplay,
             // ROIC相关
-            operatingProfit, interestExpense, totalProfit, roicIncomeTax,
-            parentEquity, interestBearingDebt, roic, calculatedNopat, calculatedInvestedCapital,
+            operatingProfit,
+            parentEquity, roic, calculatedNopat, calculatedInvestedCapital,
             calculateROIC, formatCurrency, roicCalculated, roicError,
-            roicCalculationMethod, investedCapitalMethod, roicComparison
+            roicCalculationMethod, investedCapitalMethod, roicComparison,
+            // 新增功能
+            calculateAll, getComparisonStyle, getValueCreationText, getValueCreationDetail
         };
     }
 }).mount("#app");
