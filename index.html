@@ -20,6 +20,26 @@
         <section class="input-section">
             <h2>🔧 计算参数</h2>
 
+            <!-- 基础参数 -->
+            <div class="input-grid basic-params">
+                <div class="input-group">
+                    <label for="initialCashFlow">初始自由现金流 (万元)</label>
+                    <input type="number" id="initialCashFlow" v-model.number="initialCashFlow" step="0.01" placeholder="例如：1000.50">
+                </div>
+                <div class="input-group">
+                    <label for="discountRate">折现率 (%)</label>
+                    <input type="number" id="discountRate" v-model.number="discountRate" step="0.1" placeholder="例如：12">
+                </div>
+                <div class="input-group">
+                    <label for="terminalGrowth">永续增长率 (%)</label>
+                    <input type="number" id="terminalGrowth" v-model.number="terminalGrowth" step="0.1" placeholder="例如：3">
+                </div>
+                <div class="input-group">
+                    <label for="shareCapital">总股本（万股）</label>
+                    <input type="number" id="shareCapital" v-model.number="shareCapital" step="0.01" placeholder="例如：10000.50">
+                </div>
+            </div>
+
             <!-- 多阶段增长输入 -->
             <div class="multi-stage-input" v-if="growthMode === 'multi'">
                 <div class="stage-header">
@@ -46,29 +66,6 @@
                             <input type="number" v-model.number="stage.growthRate" step="0.1" placeholder="例如：15">
                         </div>
                     </div>
-                </div>
-                
-                <div class="input-group multi-initial-cashflow">
-                    <label for="initialCashFlow">初始自由现金流 (万元)</label>
-                    <input type="number" id="initialCashFlow" v-model.number="initialCashFlow" step="0.01" placeholder="例如：1000.50">
-                </div>
-            </div>
-
-            <!-- 通用参数 -->
-            <div class="input-grid common-params">
-                <div class="input-group">
-                    <label for="discountRate">折现率 (%)</label>
-                    <input type="number" id="discountRate" v-model.number="discountRate" step="0.1" placeholder="例如：12">
-                </div>
-
-                <div class="input-group">
-                    <label for="terminalGrowth">永续增长率 (%)</label>
-                    <input type="number" id="terminalGrowth" v-model.number="terminalGrowth" step="0.1" placeholder="例如：3">
-                </div>
-
-                <div class="input-group">
-                    <label for="shareCapital">总股本（万股）</label>
-                    <input type="number" id="shareCapital" v-model.number="shareCapital" step="0.01" placeholder="例如：10000.50">
                 </div>
             </div>
 
