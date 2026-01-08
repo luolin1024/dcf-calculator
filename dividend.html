@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股息贴现模型 - DDM股价计算器</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+<div id="dividendApp">
+    <header class="header">
+        <h1>📈 股息贴现模型(DDM)股价计算器</h1>
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button">DCF 计算器</a>
+            <a href="wacc.html" class="nav-button">WACC 计算器</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 输入参数区域 -->
+        <section class="input-section">
+            <h2>🔧 计算参数</h2>
+
+            <!-- 基础参数 -->
+            <div class="input-grid basic-params">
+                <div class="input-group">
+                    <label for="nextDividend">下一期股息 (元/股)</label>
+                    <input type="number" id="nextDividend" v-model.number="nextDividend" step="0.01" placeholder="例如：2.50">
+                </div>
+                <div class="input-group">
+                    <label for="requiredRate">要求回报率 (%)</label>
+                    <input type="number" id="requiredRate" v-model.number="requiredRate" step="0.1" placeholder="例如：10">
+                </div>
+                <div class="input-group">
+                    <label for="growthRate">股息增长率 (%)</label>
+                    <input type="number" id="growthRate" v-model.number="growthRate" step="0.1" placeholder="例如：5">
+                </div>
+            </div>
+
+            <!-- 多阶段DDM输入 -->
+            <div class="multi-stage-input" v-if="modelType === 'multi'">
+                <div class="stage-header">
+                    <h3>多阶段增长设置</h3>
+                    <button @click="addStage" class="add-stage-btn">+ 添加阶段</button>
+                </div>
+                
+                <div v-for="(stage, index) in growthStages" :key="index" class="stage-item">
+                    <div class="stage-header-info">
+                        <h4>阶段 {{ index + 1 }}</h4>
+                        <button v-if="growthStages.length > 1" @click="removeStage(index)" class="remove-stage-btn">删除</button>
+                    </div>
+                    <div class="stage-inputs">
+                        <div class="input-group">
+                            <label>阶段名称</label>
+                            <input type="text" v-model="stage.name" placeholder="例如：高速增长期">
+                        </div>
+                        <div class="input-group">
+                            <label>持续年限</label>
+                            <input type="number" v-model.number="stage.years" min="1" placeholder="例如：3">
+                        </div>
+                        <div class="input-group">
+                            <label>增长率 (%)</label>
+                            <input type="number" v-model.number="stage.growthRate" step="0.1" placeholder="例如：15">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 模型类型选择 -->
+            <div class="growth-mode-selector">
+                <label>选择模型类型：</label>
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" v-model="modelType" value="single" />
+                        单阶段DDM (戈登增长模型)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" v-model="modelType" value="multi" />
+                        多阶段DDM
+                    </label>
+                </div>
+            </div>
+
+            <button @click="calculateDDM" class="calculate-btn">开始计算</button>
+        </section>
+
+        <!-- 结果显示区域 -->
+        <section class="results-section" v-if="results.calculated">
+            <h2>📈 计算结果</h2>
+
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>合理股价</h3>
+                    <p class="value">{{ formatCurrency(results.stockPrice) }} 元</p>
+                </div>
+                <div class="card">
+                    <h3>计算模型</h3>
+                    <p class="value">{{ results.modelType === 'single' ? '单阶段DDM' : '多阶段DDM' }}</p>
+                </div>
+                <div class="card">
+                    <h3>股息增长率</h3>
+                    <p class="value">{{ results.growthRate }}%</p>
+                </div>
+                <div class="card">
+                    <h3>要求回报率</h3>
+                    <p class="value">{{ results.requiredRate }}%</p>
+                </div>
+            </div>
+
+            <!-- 计算公式说明 -->
+            <div class="table-container">
+                <h3>计算公式说明
+                    <span class="info-icon" title="点击查看公式说明" @click="showFormulaHelp = !showFormulaHelp">ℹ️</span>
+                </h3>
+
+                <!-- 公式帮助提示 -->
+                <div v-if="showFormulaHelp" class="formula-help">
+                    <h4>DDM模型公式说明：</h4>
+                    <div v-if="modelType === 'single'">
+                        <h5>单阶段DDM（戈登增长模型）：</h5>
+                        <ul>
+                            <li><strong>合理股价</strong> = 下一期股息 ÷ (要求回报率 - 股息增长率)</li>
+                            <li><strong>适用情况</strong>：公司股息以固定增长率永续增长</li>
+                        </ul>
+                    </div>
+                    <div v-if="modelType === 'multi'">
+                        <h5>多阶段DDM：</h5>
+                        <ul>
+                            <li><strong>预测期</strong>：各阶段股息按不同增长率增长</li>
+                            <li><strong>终值</strong>：最后阶段末的股票价值，按稳定增长率折现</li>
+                            <li><strong>总价值</strong> = 预测期股息现值 + 终值现值</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 多阶段DDM的详细计算过程 -->
+                <div v-if="modelType === 'multi' && results.yearlyData.length > 0">
+                    <h3>股息预测明细</h3>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>年份</th>
+                            <th>阶段</th>
+                            <th>股息</th>
+                            <th>增长率</th>
+                            <th>折现因子</th>
+                            <th>现值</th>
+                            <th>累计现值</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="year in results.yearlyData" :key="year.year"
+                            :class="{ 'terminal-row': year.isTerminal }">
+                            <td>{{ year.year }}</td>
+                            <td>{{ year.stage || '-' }}</td>
+                            <td>{{ formatCurrency(year.dividend) }}</td>
+                            <td>{{ year.growthRate ? year.growthRate.toFixed(1) + '%' : '-' }}</td>
+                            <td>{{ year.discountFactor.toFixed(4) }}</td>
+                            <td>{{ formatCurrency(year.presentValue) }}</td>
+                            <td>{{ formatCurrency(year.cumulativePV) }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 说明区域 -->
+        <section class="explanation-section">
+            <h2>💡 股息贴现模型(DDM)说明</h2>
+            <div class="explanation-content">
+                <h3>什么是股息贴现模型(DDM)？</h3>
+                <p>股息贴现模型（Dividend Discount Model, DDM）是一种股票估值方法，认为股票的价值等于其未来所有股息的现值总和。该模型基于股票的本质：投资者购买股票是为了获得未来的股息收入。</p>
+
+                <h3>DDM模型分类：</h3>
+                <div class="formula">
+                    <p><strong>单阶段DDM（戈登增长模型）：</strong> P = D₁ ÷ (r - g)</p>
+                    <p>其中：P=股票价格，D₁=下一期股息，r=要求回报率，g=股息增长率</p>
+                </div>
+
+                <h3>单阶段DDM前提条件：</h3>
+                <ul>
+                    <li>股息以固定增长率g永续增长</li>
+                    <li>要求回报率r必须大于股息增长率g</li>
+                    <li>公司处于稳定增长阶段</li>
+                </ul>
+
+                <h3>多阶段DDM模型：</h3>
+                <p>对于增长不稳定的公司，可以使用多阶段DDM模型，通常包括：</p>
+                <ul>
+                    <li><strong>预测期</strong>：预测未来n年股息的具体增长情况</li>
+                    <li><strong>终值期</strong>：预测期后按稳定增长率永续增长</li>
+                    <li><strong>股票价值</strong> = 预测期股息现值 + 终值现值</li>
+                </ul>
+
+                <h3>参数说明：</h3>
+                <ul>
+                    <li><strong>下一期股息</strong>：预期下一年度每股派发的股息金额</li>
+                    <li><strong>要求回报率</strong>：投资者期望的最低回报率，通常使用CAPM模型计算</li>
+                    <li><strong>股息增长率</strong>：预期股息的年均增长率</li>
+                </ul>
+
+                <h3>模型局限性：</h3>
+                <ul>
+                    <li>仅适用于稳定派息的公司（如公用事业、银行等）</li>
+                    <li>对增长率和回报率的假设非常敏感</li>
+                    <li>高增长公司（增长率>回报率）无法使用</li>
+                    <li>未考虑留存收益的再投资价值</li>
+                </ul>
+
+                <h3>实际应用建议：</h3>
+                <ul>
+                    <li>优先选择分红稳定、持续的公司</li>
+                    <li>增长率不应超过GDP增长率（长期约为2%-4%）</li>
+                    <li>要求回报率应考虑公司风险水平</li>
+                    <li>结合其他估值方法综合判断</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 股息数据获取指南 -->
+        <section class="cashflow-guide">
+            <h2>💡 如何查找公司股息数据</h2>
+
+            <div class="guide-steps">
+                <div class="step">
+                    <h3>步骤1：查找股息公告</h3>
+                    <p>在公司官网的<strong>投资者关系</strong>板块或证券交易所网站查找股息分配公告</p>
+                </div>
+
+                <div class="step">
+                    <h3>步骤2：定位关键数据</h3>
+                    <div class="data-points">
+                        <div class="data-point">
+                            <span class="label">每股股息：</span>
+                            <span class="value">查找"每10股派发现金红利"并换算</span>
+                        </div>
+                        <div class="data-point">
+                            <span class="label">股息支付率：</span>
+                            <span class="value">股息总额÷净利润，通常40%-70%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h3>步骤3：估算未来股息</h3>
+                    <div class="formula-card">
+                        <p class="formula">预期股息 = 上期股息 × (1 + 预期增长率)</p>
+                        <div class="example">
+                            <p><strong>示例：</strong></p>
+                            <p>上期每股股息：1.50元</p>
+                            <p>预期增长率：8%</p>
+                            <p class="result">预期股息 = 1.50 × (1 + 8%) = 1.62元</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h3>步骤4：常用数据源</h3>
+                    <div class="data-sources">
+                        <div class="source">
+                            <h4>A股公司</h4>
+                            <ul>
+                                <li>东方财富网-财务分析</li>
+                                <li>同花顺-分红融资</li>
+                                <li>巨潮资讯网-公告查询</li>
+                            </ul>
+                        </div>
+                        <div class="source">
+                            <h4>美股公司</h4>
+                            <ul>
+                                <li>Yahoo Finance-Dividends</li>
+                                <li>MarketWatch-Dividend History</li>
+                                <li>公司官网Investor Relations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-tips">
+                <h3>💡 快速提示</h3>
+                <ul>
+                    <li>优先选择<strong>股息率</strong>稳定在3%-6%的公司</li>
+                    <li>关注股息支付率，避免过高（>80%）的支付率</li>
+                    <li>查看过去5年股息增长率趋势</li>
+                    <li>警惕股息政策不稳定或经常中断的公司</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>© 2024 股息贴现模型计算器 |
+            <a :href="githubRepo" target="_blank">GitHub仓库</a> |
+            数据仅供参考，投资需谨慎
+        </p>
+    </footer>
+</div>
+
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            // 响应式数据
+            const showFormulaHelp = ref(false);
+            const nextDividend = ref(2.50); // 下一期股息
+            const requiredRate = ref(10); // 要求回报率
+            const growthRate = ref(5); // 股息增长率
+            const modelType = ref('single'); // 模型类型: 'single' 或 'multi'
+            
+            // 多阶段DDM配置
+            const growthStages = ref([
+                { name: '高速增长期', years: 3, growthRate: 8 },
+                { name: '稳定增长期', years: 2, growthRate: 4 }
+            ]);
+
+            const results = ref({
+                calculated: false,
+                stockPrice: 0,
+                modelType: '',
+                growthRate: 0,
+                requiredRate: 0,
+                yearlyData: []
+            });
+
+            // 格式化货币显示
+            const formatCurrency = (value) => {
+                return new Intl.NumberFormat('zh-CN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }).format(value);
+            };
+
+            // 添加阶段
+            const addStage = () => {
+                growthStages.value.push({ 
+                    name: `阶段${growthStages.value.length + 1}`, 
+                    years: 2, 
+                    growthRate: 3 
+                });
+            };
+
+            // 删除阶段
+            const removeStage = (index) => {
+                if (growthStages.value.length > 1) {
+                    growthStages.value.splice(index, 1);
+                }
+            };
+
+            // 计算DDM
+            const calculateDDM = () => {
+                try {
+                    if (modelType.value === 'single') {
+                        // 单阶段DDM（戈登增长模型）
+                        if (requiredRate.value <= growthRate.value) {
+                            alert('要求回报率必须大于股息增长率，否则模型无法计算！');
+                            return;
+                        }
+
+                        if (requiredRate.value <= 0) {
+                            alert('要求回报率必须大于0！');
+                            return;
+                        }
+
+                        const stockPrice = nextDividend.value / (requiredRate.value / 100 - growthRate.value / 100);
+
+                        results.value = {
+                            calculated: true,
+                            stockPrice,
+                            modelType: 'single',
+                            growthRate: growthRate.value,
+                            requiredRate: requiredRate.value,
+                            yearlyData: []
+                        };
+                    } else {
+                        // 多阶段DDM计算
+                        const yearlyData = [];
+                        let cumulativePV = 0;
+                        let currentYear = 0;
+                        let lastDividend = nextDividend.value;
+                        let totalYears = 0;
+
+                        // 验证阶段配置
+                        for (const stage of growthStages.value) {
+                            if (!stage.years || stage.years <= 0 || stage.growthRate === undefined) {
+                                alert('请检查阶段配置，确保年限和增长率都已填写');
+                                return;
+                            }
+                            totalYears += stage.years;
+                        }
+
+                        // 逐阶段计算股息
+                        for (let stageIndex = 0; stageIndex < growthStages.value.length; stageIndex++) {
+                            const stage = growthStages.value[stageIndex];
+                            
+                            for (let yearInStage = 1; yearInStage <= stage.years; yearInStage++) {
+                                currentYear++;
+                                
+                                // 计算当年股息
+                                const dividend = stageIndex === 0 && yearInStage === 1 
+                                    ? nextDividend.value
+                                    : lastDividend * (1 + stage.growthRate / 100);
+                                
+                                const discountFactor = Math.pow(1 + requiredRate.value / 100, currentYear);
+                                const presentValue = dividend / discountFactor;
+                                cumulativePV += presentValue;
+
+                                yearlyData.push({
+                                    year: currentYear,
+                                    stage: stage.name,
+                                    dividend,
+                                    discountFactor,
+                                    presentValue,
+                                    cumulativePV,
+                                    growthRate: stage.growthRate
+                                });
+
+                                lastDividend = dividend;
+                            }
+                        }
+
+                        // 计算终值（使用最后阶段的增长率作为永续增长率）
+                        const lastStage = growthStages.value[growthStages.value.length - 1];
+                        const lastDividendAtTerminal = lastDividend * (1 + lastStage.growthRate / 100);
+                        
+                        if (requiredRate.value <= lastStage.growthRate) {
+                            alert('要求回报率必须大于终值增长率，否则模型无法计算！');
+                            return;
+                        }
+                        
+                        const terminalValue = lastDividendAtTerminal / (requiredRate.value / 100 - lastStage.growthRate / 100);
+                        const terminalValuePV = terminalValue / Math.pow(1 + requiredRate.value / 100, totalYears);
+                        const totalStockPrice = cumulativePV + terminalValuePV;
+
+                        // 添加终值行
+                        yearlyData.push({
+                            year: '终值',
+                            dividend: terminalValue,
+                            discountFactor: Math.pow(1 + requiredRate.value / 100, totalYears),
+                            presentValue: terminalValuePV,
+                            cumulativePV: totalStockPrice,
+                            isTerminal: true
+                        });
+
+                        results.value = {
+                            calculated: true,
+                            stockPrice: totalStockPrice,
+                            modelType: 'multi',
+                            growthRate: lastStage.growthRate, // 使用最后阶段的增长率
+                            requiredRate: requiredRate.value,
+                            yearlyData
+                        };
+                    }
+                } catch (error) {
+                    console.error('计算过程中发生错误:', error);
+                    alert('计算过程中发生错误，请检查输入参数');
+                }
+            };
+
+            // GitHub仓库链接
+            const githubRepo = 'https://github.com/luolin1024/dcf-calculator';
+
+            // 组件挂载时自动计算一次
+            onMounted(() => {
+                calculateDDM();
+            });
+
+            return {
+                showFormulaHelp,
+                nextDividend,
+                requiredRate,
+                growthRate,
+                modelType,
+                growthStages,
+                results,
+                calculateDDM,
+                addStage,
+                removeStage,
+                formatCurrency,
+                githubRepo
+            };
+        }
+    }).mount('#dividendApp');
+</script>
+</body>
+</html>

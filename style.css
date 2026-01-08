@@ -20,11 +20,12 @@ body {
 
 /* 头部样式 */
 .header {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     color: #1a202c;
     margin-bottom: 40px;
     padding: 20px;
-    position: relative;
 }
 
 .header h1 {
@@ -39,11 +40,14 @@ body {
     color: #718096;
 }
 
+/* 导航按钮容器 */
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 /* 导航按钮样式 */
 .nav-button {
-    position: absolute;
-    top: 20px;
-    right: 20px;
     background: #e2e8f0;
     color: #4a5568;
     border: 1px solid #cbd5e0;
@@ -53,6 +57,7 @@ body {
     font-weight: 500;
     transition: all 0.2s ease;
     font-size: 0.9rem;
+    white-space: nowrap;
 }
 
 .nav-button:hover {
@@ -573,10 +578,22 @@ tr:hover {
         font-size: 14px;
     }
     
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .nav-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+    
     .nav-button {
-        position: static;
-        display: inline-block;
-        margin-bottom: 20px;
+        flex: 1;
+        text-align: center;
     }
     
     .calculator-card .input-section,
