@@ -203,34 +203,10 @@
                 
                 <div class="explanation-content">
                     <h3>什么是WACC？</h3>
-                    <p>加权平均资本成本（WACC）是企业各种资本成本的加权平均值，反映了企业筹集资金的平均成本。它是企业投资决策的重要参考指标。</p>
-
-                    <h3>WACC计算公式：</h3>
-                    <div class="formula">
-                        <p><strong>WACC = E/(D+E) × r_e + D/(D+E) × r_d × (1-T)</strong></p>
-                        <p>其中：</p>
-                        <ul>
-                            <li><strong>E</strong>: 公司市值（股权价值）</li>
-                            <li><strong>D</strong>: 公司有息负债</li>
-                            <li><strong>r_e</strong>: 股权成本（使用CAPM模型计算）</li>
-                            <li><strong>r_d</strong>: 债务成本（利息费用/有息负债）</li>
-                            <li><strong>T</strong>: 企业所得税率（所得税费用/利润总额）</li>
-                        </ul>
-                    </div>
+                    <p>加权平均资本成本（WACC）是企业各种资本成本的加权平均值，反映了企业筹集资金的平均成本。它是企业投资决策的重要参考指标，简单来说就是企业使用资金的平均成本。</p>
 
                     <h3>什么是ROIC？</h3>
                     <p>投入资本回报率（ROIC，Return on Invested Capital）是衡量企业运用投入资本创造利润能力的指标。它反映了企业每投入一元资本能够产生多少税后营业利润，是评估企业运营效率和投资回报的重要指标。</p>
-
-                    <h3>ROIC计算公式：</h3>
-                    <div class="formula">
-                        <p><strong>ROIC = NOPAT ÷ Invested Capital</strong></p>
-                        <p>其中：</p>
-                        <ul>
-                            <li><strong>税率</strong>: 企业所得税率 = 所得税费用 ÷ 利润总额</li>
-                            <li><strong>NOPAT</strong>: 税后营业利润 = (营业利润 + 利息支出) × (1 - 税率)</li>
-                            <li><strong>Invested Capital</strong>: 投入资本 = 归属母公司所有者权益 + 有息负债</li>
-                        </ul>
-                    </div>
 
                     <h3>ROIC vs WACC 价值创造判断：</h3>
                     <div class="formula">
@@ -241,28 +217,61 @@
                         </ul>
                     </div>
 
-                    <h3>参数说明：</h3>
+                    <h3>📝 公共参数说明（所有计算都需要用到）</h3>
                     <ul>
-                        <li><strong>市值 E</strong>: 公司股票的市场价值</li>
-                        <li><strong>有息负债 D</strong>: 公司需要支付利息的债务（短期借款、一年内到期的非流动负债、长期借款、应付债券之和）</li>
-                        <li><strong>利息费用</strong>: 利润表中的利息支出项目</li>
-                        <li><strong>利润总额</strong>: 税前利润，在利润表中可查</li>
-                        <li><strong>所得税费用</strong>: 实际缴纳的所得税，在利润表中可查</li>
-                        <li><strong>营业利润</strong>: 企业主营业务产生的利润，在利润表中可查</li>
-                        <li><strong>归母所有者权益</strong>: 归属于母公司所有者权益合计，在资产负债表中可查</li>
-                        <li><strong>Beta（β）</strong>: 股票相对于市场的波动性</li>
-                        <li><strong>无风险利率</strong>: 通常采用国债收益率</li>
-                        <li><strong>市场风险溢价</strong>: 市场整体收益超过无风险收益的部分</li>
+                        <li><strong>利润总额</strong>: 企业在缴纳所得税前的利润，在利润表中可以查到</li>
+                        <li><strong>所得税费用</strong>: 企业实际缴纳的所得税金额，在利润表中可以查到</li>
+                        <li><strong>有息负债（D）</strong>: 公司需要支付利息的债务总和，包括短期借款、一年内到期的非流动负债、长期借款、应付债券等</li>
+                        <li><strong>利息费用</strong>: 企业因借款而支付的利息，在利润表中可以查到</li>
                     </ul>
 
-                    <h3>注意事项：</h3>
+                    <h3>📊 WACC计算专用参数</h3>
+                    <div class="formula">
+                        <p><strong>WACC计算公式：</strong></p>
+                        <p><strong>WACC = E/(D+E) × r_e + D/(D+E) × r_d × (1-T)</strong></p>
+                        <p>其中：</p>
+                        <ul>
+                            <li><strong>市值（E）</strong>: 公司股票的市场价值，也就是公司总市值</li>
+                            <li><strong>Beta（β）</strong>: 股票相对于市场的波动性，反映股票风险的指标</li>
+                            <li><strong>无风险利率（r_f）</strong>: 通常采用国债收益率，是没有风险的投资回报率</li>
+                            <li><strong>市场风险溢价（ERP）</strong>: 市场整体收益超过无风险收益的部分，反映市场平均风险回报</li>
+                            <li><strong>股权成本（r_e）</strong>: 使用CAPM模型计算，公式为 r_e = r_f + β × ERP</li>
+                            <li><strong>债务成本（r_d）</strong>: 利息费用除以有息负债，反映企业借款的成本</li>
+                            <li><strong>企业所得税率（T）</strong>: 所得税费用除以利润总额，反映企业的税负水平</li>
+                        </ul>
+                    </div>
+
+                    <h3>💰 ROIC计算专用参数</h3>
+                    <div class="formula">
+                        <p><strong>ROIC计算公式：</strong></p>
+                        <p><strong>ROIC = NOPAT ÷ Invested Capital</strong></p>
+                        <p>其中：</p>
+                        <ul>
+                            <li><strong>营业利润</strong>: 企业主营业务产生的利润，在利润表中可以查到</li>
+                            <li><strong>归母所有者权益</strong>: 归属于母公司所有者权益合计，在资产负债表中可以查到</li>
+                            <li><strong>税后营业利润（NOPAT）</strong>: (营业利润 + 利息支出) × (1 - 税率)，反映企业经营活动的税后利润</li>
+                            <li><strong>投入资本（Invested Capital）</strong>: 归母所有者权益 + 有息负债，反映企业实际投入的资本总额</li>
+                        </ul>
+                    </div>
+
+                    <h3>💡 小白易懂说明</h3>
+                    <p><strong>简单来说：</strong></p>
+                    <ul>
+                        <li><strong>WACC</strong> 是企业使用资金的平均成本，就像你借钱要付利息一样，企业使用股东和债权人的钱也有成本</li>
+                        <li><strong>ROIC</strong> 是企业使用投入资本赚取利润的能力，就像你投资100元能赚多少钱</li>
+                        <li><strong>当ROIC > WACC时</strong>，说明企业用别人的钱赚钱的能力超过了成本，是在创造价值</li>
+                        <li><strong>当ROIC < WACC时</strong>，说明企业用别人的钱赚钱的能力低于成本，是在损害价值</li>
+                    </ul>
+
+                    <h3>⚠️ 注意事项：</h3>
                     <ul>
                         <li>所有金额单位为<strong>万元</strong></li>
                         <li>利润总额应大于所得税费用，确保税率在合理范围内</li>
                         <li>如果利润总额为0或负数，则无法计算有效税率</li>
-                        <li>市值和有息负债不能同时为0</li>
+                        <li>市值和有息负债不能同时为0，否则无法计算WACC</li>
                         <li>投入资本必须大于0才能计算有效的ROIC</li>
                         <li>ROIC是年度指标，反映的是企业一年期的投资回报能力</li>
+                        <li>填写数据时，建议参考企业最新的财务报表</li>
                     </ul>
                 </div>
             </section>
